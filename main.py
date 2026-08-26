@@ -29,13 +29,12 @@ def publish_event(event_data):
 def create_order(order: OrderCreate):
     order_dict = order.model_dump()
     order_dict["status"] = "CREATED"
-
+    
     res = orders_collection.insert_one(order_dict)
     order_id = str(res.inserted_id)
     order_dict["_id"] = order_id
-
+    
     # Decoupled Event-Driven Messaging
     publish_event({"order_id": order_id, "user_id": order.user_id, "product_id": order.product_id})
-
+    
     return order_dict
-

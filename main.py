@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from pymongo import MongoClient
@@ -7,7 +8,7 @@ import json
 app = FastAPI(title="Order Service")
 
 # Database Connection (Creates database order_db and collection orders automatically)
-client = MongoClient("mongodb://localhost:27017/")
+client = MongoClient("mongodb://mongodb:27017/")
 db = client["order_db"]
 orders_collection = db["orders"]
 
@@ -17,7 +18,7 @@ class OrderCreate(BaseModel):
 
 def publish_event(event_data):
     try:
-        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        connection = pika.BlockingConnection(pika.ConnectionParameters('mongodb'))
         channel = connection.channel()
         channel.queue_declare(queue='ORDER_CREATED')
         channel.basic_publish(exchange='', routing_key='ORDER_CREATED', body=json.dumps(event_data))

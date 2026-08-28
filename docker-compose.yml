@@ -1,0 +1,51 @@
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - micro-net
+
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "8001:8001"
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017
+    depends_on:
+      - mongodb
+    networks:
+      - micro-net
+
+  product-service:
+    build: ./product-service
+    container_name: product-service
+    ports:
+      - "8002:8002"
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017
+    depends_on:
+      - mongodb
+    networks:
+      - micro-net
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    ports:
+      - "8003:8003"
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017
+    depends_on:
+      - mongodb
+      - user-service
+      - product-service
+    networks:
+      - micro-net
+
+networks:
+  micro-net:
+    driver: bridge
